@@ -202,13 +202,18 @@ auto main() -> int {
         base_address + offsets::kCtAddress, offsets::kLyricsOffsets);
     lyrics = process::ReadWideString(lyrics_address);
 
-#ifdef NDEBUG
-    system("cls");
-#endif
 
+    static std::wstring last_lyrics;
     if (!lyrics.empty()) {
-      std::string utf8 = WideToUtf8(lyrics);
-      printf("%s\n", utf8.c_str());
+      if (lyrics != last_lyrics) {
+        std::string utf8 = WideToUtf8(lyrics);
+#ifdef NDEBUG
+        system("cls");
+#endif
+        printf("%s\n", utf8.c_str());
+        fflush(stdout);
+        last_lyrics = lyrics;
+      }
     } else {
       printf("[No lyrics found]\n");
     }
