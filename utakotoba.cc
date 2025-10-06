@@ -29,8 +29,8 @@
 #include <tlHelp32.h>
 
 #include <chrono>
+#include <cstdio>
 #include <iostream>
-#include <print>
 #include <string>
 #include <thread>
 #include <vector>
@@ -169,33 +169,33 @@ auto main() -> int {
   uintptr_t base_address =
       process::GetModuleBaseAddress(process_id, L"cloudmusic.dll");
   if (process_id == 0) {
-    std::println("Failed to find process ID.");
+    printf("Failed to find process ID.\n");
     return 1;
   }
   if (process::process_handle == nullptr) {
-    std::println("Failed to open process.");
+    printf("Failed to open process.\n");
     return 1;
   }
   if (base_address == 0) {
-    std::println("Failed to get module base address.");
+    printf("Failed to get module base address.\n");
     return 1;
   }
-  std::println("Process ID: {}", process_id);
-  std::println("Process Handle: {}",
-               reinterpret_cast<void*>(process::process_handle));
-  std::println("Module Base Address: {:#x}", base_address);
+  printf("Process ID: %lu\n", process_id);
+  printf("Process Handle: %p\n", process::process_handle);
+  printf("Module Base Address: %#llx\n", (uintptr_t)base_address);
 
   uintptr_t lyrics_address = process::RefPtr<uintptr_t>(
       base_address + offsets::kCtAddress, offsets::kLyricsOffsets);
   if (lyrics_address == 0) {
-    std::println("Failed to resolve lyrics address.");
+    printf("Failed to resolve lyrics address.\n");
     return 1;
   }
-  std::println("Lyrics Address: {:#x}", lyrics_address);
+  printf("Lyrics Address: %#llx\n", (uintptr_t)lyrics_address);
+
   static std::wstring lyrics;
   while (true) {
     if (process::GetProcessIdByWindowTitle(L"桌面歌词") == 0) {
-      std::println("Process has exited.");
+      printf("Process has exited.\n");
       return 0;
     }
     lyrics_address = process::RefPtr<uintptr_t>(
@@ -207,9 +207,10 @@ auto main() -> int {
 #endif
 
     if (!lyrics.empty()) {
-      std::println("{}", WideToUtf8(lyrics));
+      std::string utf8 = WideToUtf8(lyrics);
+      printf("%s\n", utf8.c_str());
     } else {
-      std::println("[No lyrics found]");
+      printf("[No lyrics found]\n");
     }
 
     lyrics.clear();
